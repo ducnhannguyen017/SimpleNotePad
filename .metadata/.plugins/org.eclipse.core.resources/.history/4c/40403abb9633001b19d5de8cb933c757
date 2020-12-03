@@ -1,0 +1,220 @@
+package Notepad;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+import java.awt.FileDialog;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
+import javax.swing.ImageIcon;
+import javax.swing.KeyStroke;
+import java.awt.event.KeyEvent;
+import java.awt.event.InputEvent;
+import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.util.Scanner;
+
+import javax.swing.JDesktopPane;
+import javax.swing.JFileChooser;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.ScrollPaneConstants;
+
+public class Notepad extends JFrame {
+
+	private JPanel contentPane;
+	/**
+	 * @wbp.nonvisual location=200,29
+	 */
+	private javax.swing.JFileChooser jFile;
+	private javax.swing.JTextArea textArea;
+	private javax.swing.JFrame Notepad;
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Notepad frame = new Notepad();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public Notepad() {
+		setTitle("abc");
+		setResizable(false);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 800, 500);
+		setName("123");
+		
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		setJMenuBar(menuBar);
+		
+		JMenu mnNewMenu = new JMenu("File");
+		menuBar.add(mnNewMenu);
+		
+		JMenuItem New = new JMenuItem("  New");
+		New.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
+		New.setIcon(new ImageIcon("D:\\DownLoad\\square.png"));
+		mnNewMenu.add(New);
+		
+		JMenuItem NewWindow = new JMenuItem("  New Window");
+		NewWindow.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		mnNewMenu.add(NewWindow);
+		
+		JSeparator separator_3 = new JSeparator();
+		mnNewMenu.add(separator_3);
+		
+		JMenuItem Open = new JMenuItem("  Open...");
+		Open.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				OpenFunction();
+			}
+		});
+		Open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+		mnNewMenu.add(Open);
+		
+		JSeparator separator_4 = new JSeparator();
+		mnNewMenu.add(separator_4);
+		
+		JMenuItem Save = new JMenuItem("  Save");
+		Save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+		mnNewMenu.add(Save);
+		
+		JMenuItem SaveAs = new JMenuItem("  Save as...");
+		SaveAs.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+			}
+		});
+		SaveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		mnNewMenu.add(SaveAs);
+		
+		JSeparator separator_5 = new JSeparator();
+		mnNewMenu.add(separator_5);
+		
+		JMenuItem PageSetup = new JMenuItem("  Page setup");
+		mnNewMenu.add(PageSetup);
+		
+		JMenuItem Exit = new JMenuItem("  Exit");
+		mnNewMenu.add(Exit);
+		
+		JMenu Edit = new JMenu("Edit");
+		menuBar.add(Edit);
+		
+		JMenuItem mntmNewMenuItem_7 = new JMenuItem("  Undo");
+		mntmNewMenuItem_7.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_MASK));
+		mntmNewMenuItem_7.setIcon(new ImageIcon("D:\\DownLoad\\square.png"));
+		Edit.add(mntmNewMenuItem_7);
+		
+		JSeparator separator = new JSeparator();
+		Edit.add(separator);
+		
+		JMenuItem mntmNewMenuItem_8 = new JMenuItem("  Cut");
+		Edit.add(mntmNewMenuItem_8);
+		
+		JMenuItem mntmNewMenuItem_9 = new JMenuItem("  Copy");
+		Edit.add(mntmNewMenuItem_9);
+		
+		JMenuItem mntmNewMenuItem_10 = new JMenuItem("  Paste");
+		Edit.add(mntmNewMenuItem_10);
+		
+		JMenuItem mntmNewMenuItem_11 = new JMenuItem("  Delete");
+		Edit.add(mntmNewMenuItem_11);
+		
+		JSeparator separator_1 = new JSeparator();
+		Edit.add(separator_1);
+		
+		JMenuItem mntmNewMenuItem_12 = new JMenuItem("  Search ...");
+		Edit.add(mntmNewMenuItem_12);
+		
+		JMenuItem mntmNewMenuItem_13 = new JMenuItem("  Find");
+		mntmNewMenuItem_13.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK));
+		Edit.add(mntmNewMenuItem_13);
+		
+		JSeparator separator_2 = new JSeparator();
+		Edit.add(separator_2);
+		
+		JMenuItem mntmNewMenuItem_14 = new JMenuItem("  Select All");
+		Edit.add(mntmNewMenuItem_14);
+		
+		JMenuItem mntmNewMenuItem_15 = new JMenuItem("  New menu item");
+		Edit.add(mntmNewMenuItem_15);
+		
+		JMenu Font = new JMenu("Font");
+		menuBar.add(Font);
+		
+		JMenu Help = new JMenu("Help");
+		menuBar.add(Help);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(new BorderLayout(0, 0));
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane.setViewportBorder(null);
+		contentPane.add(scrollPane);
+		
+		textArea = new JTextArea();
+		textArea.setFont(new Font("Consolas", Font.ABORT, 14));
+		scrollPane.setColumnHeaderView(textArea);
+	}
+	void OpenFunction() {
+		JFileChooser fc=new JFileChooser();
+		if(fc.showOpenDialog(this)==JFileChooser.APPROVE_OPTION) {
+			try {
+				
+				String selFile=fc.getSelectedFile().getAbsolutePath();//lấy đường dẫn của file được chọn
+				BufferedReader br=new BufferedReader(new FileReader(selFile));//đọc fil
+				textArea.setText("");
+				String line=null;
+				while((line=br.readLine())!=null) {
+					textArea.append(line+"\n");
+				}
+				br.close();
+			} 
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	void SaveFunction() {
+		JFileChooser fc=new JFileChooser();
+		if(fc.showSaveDialog(this)==JFileChooser.APPROVE_OPTION) {
+			try {
+				String selFile=fc.getSelectedFile().getAbsolutePath();
+				//lblStatus.setText(“Saved: “+selFile);
+				PrintWriter out=new PrintWriter(new FileOutputStream(selFile),true);
+				//out.print(textArea.getText());
+				out.close();
+			} 
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+}
