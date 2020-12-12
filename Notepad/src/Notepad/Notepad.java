@@ -3,10 +3,14 @@ package Notepad;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.FileDialog;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.text.Document;
+import javax.swing.undo.UndoManager;
+import javax.swing.undo.UndoableEdit;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JMenuBar;
@@ -33,10 +37,8 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.Scanner;
-
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.ScrollPaneConstants;
@@ -44,6 +46,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JCheckBoxMenuItem;
 
 public class Notepad extends JFrame {
 
@@ -53,11 +56,13 @@ public class Notepad extends JFrame {
 	 */
 	private javax.swing.JFileChooser jFile;
 	private javax.swing.JTextArea textArea;
-//	private javax.swing.JFrame frame;
 	private static Notepad frame;
+	private UndoManager undoManager;
+	FontChooser fontDialog = null;
 	
 	String FileName;
 	String FileAdress;
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -70,17 +75,20 @@ public class Notepad extends JFrame {
 			}
 		});
 	}
-
+	
 	/**
 	 * Create the frame.
 	 */
 	public Notepad() {
+		undoManager = new UndoManager();
 		setBackground(Color.WHITE);
 		setTitle("New- SimpleNotepad");
 		setResizable(false);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 500);
 		setName("Notepad");
+		
+//		String textTemp = textArea.getText();
+		
 		
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(new Color(240, 240, 240));
@@ -170,45 +178,99 @@ public class Notepad extends JFrame {
 		menuBar.add(Edit);
 		
 		JMenuItem Undo = new JMenuItem("Undo");
+		Undo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Undo();
+			}
+		});
 		Undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_MASK));
 		Edit.add(Undo);
+		
+		JMenuItem Redo = new JMenuItem("Redo");
+		Redo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Redo();
+			}
+		});
+		Redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_MASK));
+		Edit.add(Redo);
 		
 		JSeparator separator = new JSeparator();
 		Edit.add(separator);
 		
 		JMenuItem mntmNewMenuItem_8 = new JMenuItem("  Cut");
+		mntmNewMenuItem_8.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Cut();
+			}
+		});
+		mntmNewMenuItem_8.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
 		Edit.add(mntmNewMenuItem_8);
 		
 		JMenuItem mntmNewMenuItem_9 = new JMenuItem("  Copy");
+		mntmNewMenuItem_9.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Copy();
+			}
+		});
+		mntmNewMenuItem_9.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK));
 		Edit.add(mntmNewMenuItem_9);
 		
 		JMenuItem mntmNewMenuItem_10 = new JMenuItem("  Paste");
+		mntmNewMenuItem_10.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Paste();
+			}
+		});
+		mntmNewMenuItem_10.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_MASK));
 		Edit.add(mntmNewMenuItem_10);
 		
 		JMenuItem mntmNewMenuItem_11 = new JMenuItem("  Delete");
+		mntmNewMenuItem_11.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Delete();
+			}
+		});
 		Edit.add(mntmNewMenuItem_11);
 		
 		JSeparator separator_1 = new JSeparator();
 		Edit.add(separator_1);
 		
-		JMenuItem mntmNewMenuItem_12 = new JMenuItem("  Search ...");
-		Edit.add(mntmNewMenuItem_12);
-		
 		JMenuItem mntmNewMenuItem_13 = new JMenuItem("  Find");
 		mntmNewMenuItem_13.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK));
 		Edit.add(mntmNewMenuItem_13);
 		
-		JSeparator separator_2 = new JSeparator();
-		Edit.add(separator_2);
-		
 		JMenuItem mntmNewMenuItem_14 = new JMenuItem("  Select All");
+		mntmNewMenuItem_14.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				SelectAll();
+			}
+		});
+		mntmNewMenuItem_14.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_MASK));
 		Edit.add(mntmNewMenuItem_14);
 		
-		JMenuItem mntmNewMenuItem_15 = new JMenuItem("  New menu item");
-		Edit.add(mntmNewMenuItem_15);
+		JMenu Format = new JMenu("Format");
+		menuBar.add(Format);
 		
-		JMenu Font = new JMenu("Font");
-		menuBar.add(Font);
+		JCheckBoxMenuItem WrapTextcheckItem = new JCheckBoxMenuItem("Wrap Text");
+		WrapTextcheckItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(WrapTextcheckItem.isSelected()){
+					textArea.setLineWrap(true);
+		        }else {
+		            textArea.setLineWrap(false);
+		        }
+			}
+		});
+		Format.add(WrapTextcheckItem);
+		
+		JMenuItem fontItem = new JMenuItem("Font...");
+		fontItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Font();
+			}
+		});
+		Format.add(fontItem);
 		
 		JMenu Help = new JMenu("Help");
 		menuBar.add(Help);
@@ -226,10 +288,15 @@ public class Notepad extends JFrame {
 		
 		textArea = new JTextArea();
 		textArea.setTabSize(5);
-		textArea.setFont(new Font("Consolas", Font.ABORT, 15));
 		scrollPane.setViewportView(textArea);
-
+		textArea.getDocument().addUndoableEditListener(
+				new UndoableEditListener() {
+					public void undoableEditHappened(UndoableEditEvent e) {
+						undoManager.addEdit(e.getEdit());
+					}
+				});
 	}
+	
 	void OpenFunction() {
 		JFileChooser fc=new JFileChooser();
 		if(fc.showOpenDialog(this)==JFileChooser.APPROVE_OPTION) {
@@ -250,6 +317,7 @@ public class Notepad extends JFrame {
 			}
 		}
 	}
+	
 	void SaveAsFunction() {
 		JFileChooser fc=new JFileChooser();
 		if(fc.showSaveDialog(this)==JFileChooser.APPROVE_OPTION) {
@@ -266,6 +334,7 @@ public class Notepad extends JFrame {
 			}
 		}
 	}
+	
 	void Save() {
 		if(FileName==null) {
 			SaveAsFunction();
@@ -282,19 +351,23 @@ public class Notepad extends JFrame {
 			}
 		}
 	}
+	
 	void New() {
-		if(FileName!=null) {	
+		if(undoManager.canUndo()||undoManager.canRedo()) {	
 			Object[] options = {"Yes, please","No, thanks"};
 			int x = JOptionPane.showOptionDialog(null, "Bạn có muốn lưu file này !",
 	                "Click a button",
 	                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
-	        System.out.println(x);
+			if(x==0) {
+				SaveAsFunction();
+			}
 		}
 		else {
 			textArea.setText("");
 			frame.setTitle("New- SimpleNotepad");
 		}
 	}
+	
 	void Exit() {
 			System.exit(0);
 	}
@@ -308,5 +381,80 @@ public class Notepad extends JFrame {
 		e.printStackTrace();
 		}
 	}
-
+	
+	void Delete() {
+		String tmp = frame.textArea.getText();
+		frame.textArea.setText(tmp.substring(0, frame.textArea.getSelectionStart()) 
+				+ tmp.substring(frame.textArea.getSelectionEnd()));
+	}
+	
+	void SelectAll() {
+		frame.textArea.selectAll();
+	}
+	
+	void Copy() {
+		frame.textArea.copy();
+	}
+	
+	void Cut() {
+		frame.textArea.cut();
+	}
+	
+	void Paste() {
+		frame.textArea.paste();
+	}
+	
+	void Undo() {
+		if(undoManager.canUndo()) {
+			try {
+				frame.undoManager.undo();
+			} catch (Exception e) {
+				
+			}
+		}
+	}
+	
+	void Redo() {
+		if(undoManager.canRedo()) {
+			try {
+				frame.undoManager.redo();
+			} catch (Exception e) {	
+				
+			}
+		}
+	}
+	
+	void Font() {
+		
+		if(fontDialog == null)
+			fontDialog = new FontChooser();
+		fontDialog.setVisible(true);
+		fontDialog.okButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String tmp = frame.textArea.getText();
+				frame.textArea.setText(tmp.substring(0, frame.textArea.getSelectionStart()) 
+						+ tmp.substring(frame.textArea.getSelectionEnd()));
+				textArea.setFont(fontDialog.createFont());
+				fontDialog.setVisible(false);
+			}
+		});
+	}
+	
+//	void Click() {
+//		String tmp = frame.textArea.getSelectedText();
+//		try {
+//            fontDialog.okButton.addActionListener(new ActionListener() {
+//				public void actionPerformed(ActionEvent arg0) {
+//					tmp = fontDialog.createFont();
+//					fontDialog.setVisible(false);
+//				}
+//			});
+//            
+//            int begin = frame.textArea.getSelectionStart();
+//            int end = frame.textArea.getSelectionEnd();
+//            frame.textArea.replaceRange(tmp, begin, end);
+//            frame.textArea.select(begin, end);
+//        } catch (Exception e) {
+//        }
+//	}
 }
