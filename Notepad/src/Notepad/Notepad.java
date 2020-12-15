@@ -47,6 +47,8 @@ import java.awt.Color;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JTextField;
+import javax.swing.JButton;
 
 public class Notepad extends JFrame {
 
@@ -59,7 +61,7 @@ public class Notepad extends JFrame {
 	private static Notepad frame;
 	private UndoManager undoManager;
 	FontChooser fontDialog = null;
-	
+	Find find = null;
 	String FileName;
 	String FileAdress;
 	
@@ -179,6 +181,7 @@ public class Notepad extends JFrame {
 		
 		JMenuItem Undo = new JMenuItem("Undo");
 		Undo.addActionListener(new ActionListener() {
+			
 			public void actionPerformed(ActionEvent arg0) {
 				Undo();
 			}
@@ -188,6 +191,7 @@ public class Notepad extends JFrame {
 		
 		JMenuItem Redo = new JMenuItem("Redo");
 		Redo.addActionListener(new ActionListener() {
+	
 			public void actionPerformed(ActionEvent arg0) {
 				Redo();
 			}
@@ -237,6 +241,12 @@ public class Notepad extends JFrame {
 		Edit.add(separator_1);
 		
 		JMenuItem mntmNewMenuItem_13 = new JMenuItem("  Find");
+		mntmNewMenuItem_13.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				FindText();
+				
+			}
+		});
 		mntmNewMenuItem_13.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK));
 		Edit.add(mntmNewMenuItem_13);
 		
@@ -281,7 +291,7 @@ public class Notepad extends JFrame {
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setEnabled(false);
-		scrollPane.setBounds(0, 0, 784, 439);
+		scrollPane.setBounds(0, 0, 784, 440);
 		scrollPane.setViewportBorder(null);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder() );
 		contentPane.add(scrollPane);
@@ -353,6 +363,7 @@ public class Notepad extends JFrame {
 	}
 	
 	void New() {
+//		String text1=textArea.getText();
 		if(undoManager.canUndo()||undoManager.canRedo()) {	
 			Object[] options = {"Yes, please","No, thanks"};
 			int x = JOptionPane.showOptionDialog(null, "Bạn có muốn lưu file này !",
@@ -423,38 +434,21 @@ public class Notepad extends JFrame {
 			}
 		}
 	}
-	
+	void FindText() {
+		find = new Find();
+		find.textArea = textArea;
+		find.setVisible(true);
+	}
 	void Font() {
-		
 		if(fontDialog == null)
 			fontDialog = new FontChooser();
 		fontDialog.setVisible(true);
+//		String tmp = frame.textArea.getSelectedText();
 		fontDialog.okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String tmp = frame.textArea.getText();
-				frame.textArea.setText(tmp.substring(0, frame.textArea.getSelectionStart()) 
-						+ tmp.substring(frame.textArea.getSelectionEnd()));
 				textArea.setFont(fontDialog.createFont());
 				fontDialog.setVisible(false);
 			}
 		});
 	}
-	
-//	void Click() {
-//		String tmp = frame.textArea.getSelectedText();
-//		try {
-//            fontDialog.okButton.addActionListener(new ActionListener() {
-//				public void actionPerformed(ActionEvent arg0) {
-//					tmp = fontDialog.createFont();
-//					fontDialog.setVisible(false);
-//				}
-//			});
-//            
-//            int begin = frame.textArea.getSelectionStart();
-//            int end = frame.textArea.getSelectionEnd();
-//            frame.textArea.replaceRange(tmp, begin, end);
-//            frame.textArea.select(begin, end);
-//        } catch (Exception e) {
-//        }
-//	}
 }

@@ -156,7 +156,7 @@ public class FontChooser extends JFrame {
 		String fontname=(String)fontnameList.getSelectedValue();
 		fnt=new Font(fontname,fontstyle,fontsize);	
 		return fnt;
-	
+		
 	}
 	void inputUI() {
 		setBounds(100, 100, 464, 458);
@@ -207,6 +207,8 @@ public class FontChooser extends JFrame {
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		lblNewLabel.setBounds(53, 291, 69, 23);
 		contentPane.add(lblNewLabel);
+		
+		
 	}
 	
 }
